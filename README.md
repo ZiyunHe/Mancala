@@ -1,0 +1,2 @@
+# Mancala
+sjsu cs151
