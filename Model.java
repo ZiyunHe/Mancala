@@ -1,10 +1,13 @@
 import java.util.ArrayList;
 
 public class Model {
+	
 	private ArrayList<Integer> pits;
 //	turn: true: player 1, false: player2
 	private boolean turn;
 	private boolean endGame;
+	
+	
 	public Model(int stoneValue) {
 		turn = true;
 		pits = new ArrayList<Integer>();
