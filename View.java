@@ -14,17 +14,18 @@ public class View {
 
 	private Model model;
 	private int numberOfStone = 3;
-	private Design design = new DesignTwo();
+	private Design design = new DesignOne();
 	private JFrame frame;
 	JLabel curentPlayer;
 	
 	
 	public View() {
-	//	Model model	
+	//	Model model	goes into View() parameter
 	//	this.model= model;
 		
 		frame = new JFrame("Mancala");
-		frame.setLayout(new BorderLayout());
+		frame.setLayout(new BorderLayout(10,10));
+	
 		
 		setUp(frame);
 		
@@ -83,8 +84,9 @@ public class View {
 		begin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				container.setVisible(false);
-				//board();
+				board();
 				dialog.dispose();
+				
 			}
 		});
 		chooseThree.addActionListener(new ActionListener() {
@@ -117,22 +119,56 @@ public class View {
 		container.add(panel1);
 		container.add(panel2);
 		container.add(begin);
+		dialog.setVisible(true);
 		dialog.setResizable(false);
 		
 	}
 	
 	
-	
 	public void board() {
-		 curentPlayer = new JLabel();
+		 curentPlayer = new JLabel("Player .(1) or (2).. turn");
 		 frame.add(curentPlayer, BorderLayout.NORTH);
 		 
-		 
-		 Pits mancala1 = new Pits(design,6, 5);
+		 Pits mancala1 = new Pits(design,6, 27);
 		 JLabel Mancala_1 = new JLabel(mancala1);
-		 frame.add(Mancala_1, BorderLayout.WEST);
+		 frame.add(Mancala_1, BorderLayout.EAST);
+		 
+		 Pits mancala2 = new Pits(design,13, 35);
+		 JLabel Mancala_2 = new JLabel(mancala2);
+		 frame.add(Mancala_2, BorderLayout.WEST);
+		 
+		 JPanel pitsBoard = new JPanel();
+		 pitsBoard.setLayout(new GridLayout(2,6,10,10));
+		 for(int i= 0; i<12;i++) {
+			 Pits pit = new Pits(design,pitOrder(i), 11);
+			 JLabel pits = new JLabel(pit);
+			 pitsBoard.add(pits);
+			 
+		 }
+		 
+		 frame.add(pitsBoard, BorderLayout.CENTER);
+		 
+		 JButton undoButton = new JButton("Undo: 3");
+		 JPanel u = new JPanel();
+		 u.add(undoButton);
+		 frame.add(u, BorderLayout.SOUTH);
 		 
 		 
+	}
+	
+	public int pitOrder(int i) {
+		if (i==0) return 12;
+		if (i==1) return 11;
+		if (i==2) return 10;
+		if (i==3) return 9;
+		if (i==4) return 8;
+		if (i==5) return 7;
+		if (i==6) return 0;
+		if (i==7) return 1;
+		if (i==8) return 2;
+		if (i==9) return 3;
+		if (i==10) return 4;
+		return 5;
 		
 	}
 }

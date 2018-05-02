@@ -1,17 +1,18 @@
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.RoundRectangle2D;
 
 public class DesignOne implements Design {
 	
-	private int pitWidth = 200;
-	private int pitHeight = 250;
-	private int mancalaWidth = 320;
-	private int mancalaHeight = 200;
+	private int pitWidth = 100;
+	private int pitHeight = 110;
+	private int mancalaWidth = 120;
+	private int mancalaHeight = 230;
 
 	
 	public Shape getPitShape() {
-		return new Ellipse2D.Double(0,0,pitWidth,pitHeight);
+		return new RoundRectangle2D.Double(0, 0, pitWidth, pitHeight, 10, 10);
 	}
 
 	@Override
@@ -23,7 +24,7 @@ public class DesignOne implements Design {
 	@Override
 	public Shape getMancalaShape() {
 		// TODO Auto-generated method stub
-		return new Ellipse2D.Double(0,0,mancalaWidth,mancalaHeight);
+		return new RoundRectangle2D.Double(0, 0, mancalaWidth, mancalaHeight, 10, 10);
 	}
 
 	@Override

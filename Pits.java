@@ -15,8 +15,8 @@ public class Pits implements Icon{
 	private Design design;
 	private int pitNumber;
 	private int stoneNumber;
-	private int x= 30;
-	private int y= 30;
+	private int x= 14;
+	private int y= 14;
 	
 	public Pits(Design design, int pitNumber, int stoneNumber){
 		this.design= design;
@@ -28,8 +28,8 @@ public class Pits implements Icon{
 	public Shape stonePosition(int numStone) {
 
 		if (numStone%4 == 0  ) {
-			x = 30;
-			y += 25;
+			x = 14;
+			y += 20;
 		}
 		if (numStone%4 != 0 ) {
 			x += 20;

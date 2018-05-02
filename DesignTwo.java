@@ -1,11 +1,12 @@
 import java.awt.Color;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
 public class DesignTwo implements Design{
-	int pitHeight=200;
-	int pitWidth=250;
-	int mancalaHeight=220;
+	int pitHeight=110;
+	int pitWidth=100;
+	int mancalaHeight=230;
 	int mancalaWidth=100;
 	
 	@Override
@@ -15,7 +16,7 @@ public class DesignTwo implements Design{
 
 	@Override
 	public Shape getStoneShape(int x, int y) {
-		return new RoundRectangle2D.Double(x, y, 12, 12, 2, 2);
+		return new Rectangle2D.Double(x, y, 12, 12);
 	}
 
 	@Override
@@ -35,12 +36,12 @@ public class DesignTwo implements Design{
 
 	@Override
 	public Color getPitColor() {
-		return new Color(216,57,100);
+		return new Color(44,125,211);
 	}
 
 	@Override
 	public Color getMancalaColor() {
-		return new Color(179, 46, 91);
+		return new Color(31, 99, 173);
 	}
 
 	@Override
