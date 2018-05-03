@@ -1,6 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -139,9 +138,19 @@ public class View {
 		 
 		 JPanel pitsBoard = new JPanel();
 		 pitsBoard.setLayout(new GridLayout(2,6,10,10));
+		 
 		 for(int i= 0; i<12;i++) {
 			 Pits pit = new Pits(design,pitOrder(i), 11);
 			 JLabel pits = new JLabel(pit);
+			 pits.addMouseListener(new MouseAdapter() {
+				 public void mousePressed(MouseEvent e){
+					 System.out.println("sdds");
+				 }
+			 
+		 }
+				 
+			 );
+			 
 			 pitsBoard.add(pits);
 			 
 		 }

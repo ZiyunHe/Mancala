@@ -1,8 +1,14 @@
 import java.util.ArrayList;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+
 public class Model {
 	
-	private ArrayList<Integer> pits;
+	private int[] stoneInPit;
+	private ArrayList<ChangeListener> listeners;
+	
 //	turn: true: player 1, false: player2
 	private boolean turn;
 	private boolean endGame;
@@ -10,18 +16,45 @@ public class Model {
 	
 	public Model(int stoneValue) {
 		turn = true;
-		pits = new ArrayList<Integer>();
-		for (int i = 0; i < 14; i++) {
-			pits.add(stoneValue);
-		}
+		stoneInPit = new int[13];
 		endGame = false;
 	}
+	
+	
+	/*
+	 * add ChangeListener into the listener ArrayList
+	 * @param ChangeListener c
+	 */
+	public void addChangeListener(ChangeListener c) {
+		listeners.add(c);
+	}
+	
+	public void changeListener() {
+		for (ChangeListener l : listeners) 
+			l.stateChanged(new ChangeEvent(this));
+	}
+	
+	//start with 3 or 4 
+	public void setStoneNumber(int stoneNum) {
+		for (int i = 0; i<14;i++) {
+			stoneInPit[i]= stoneNum;
+		}
+		changeListener();
+		
+	}
+	
+	
+	
+	
+	
+	
 	public boolean getTurn() {
 		return turn;
 	}
+	
 	public void move(int index, boolean turn) {
-		int stoneValue = pits.get(index);
-		pits.set(index, 0);
+		int stoneValue = stoneInPit[index];
+		stoneInPit[index]= 0;
 		if(turn) {
 //			Player 1 turn, index starts at 0 , escape 13
 			int i = index;
@@ -34,7 +67,7 @@ public class Model {
 					stoneValue++;
 					continue;
 				}
-				pits.set(i,pits.get(i) + 1);
+				stoneInPit[i] = stoneInPit[i] + 1;
 			}
 //			if stone ends in your mancala, player get one more turn
 			if(index + stoneValue == 6) {
@@ -44,20 +77,20 @@ public class Model {
 				turn = false;
 			}
 //			check if the last pit was empty
-			if((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)){
-				int plus = pits.get(12 - (index + stoneValue)) + 1;
-				pits.set(6, pits.get(6) + plus );
-				pits.set(index + stoneValue, 0);
-				pits.set( 12 - (index + stoneValue), 0);
+			if((stoneInPit[index + stoneValue] == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)){
+				int plus = stoneInPit[12 - (index + stoneValue)] + 1;
+				stoneInPit[6]= stoneInPit[6] + plus ;
+				stoneInPit[index + stoneValue] =0;
+				stoneInPit[ 12 - (index + stoneValue)]= 0;
 			}
 //			check if all pits for player 1 are empty, ends game
 			int sum = 0;
 			for(int j = 0; j < 6; j++) {
-				sum = sum + pits.get(j);
+				sum = sum + stoneInPit[j];
 			}
 			if(sum == 0) {
 				for(int k = 7; k < 13; k++) {
-					pits.set(13, (pits.get(13) + pits.get(k)));
+					stoneInPit[13] = (stoneInPit[13] + stoneInPit[k]);
 				}
 				endGame = true;
 			}
@@ -73,7 +106,7 @@ public class Model {
 					stoneValue++;
 					continue;
 				}
-				pits.set(i,pits.get(i) + 1);
+				stoneInPit[i]=stoneInPit[i] + 1;
 			}
 //			if stone ends in your mancala, player get one more turn
 			if(index + stoneValue == 13) {
@@ -83,20 +116,20 @@ public class Model {
 				turn = true;
 			}
 //			check if the last pit was empty
-			if((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)){
-				int plus = pits.get(12 - (index + stoneValue)) + 1;
-				pits.set(13, pits.get(13) + plus );
-				pits.set(index + stoneValue, 0);
-				pits.set( 12 - (index + stoneValue), 0);
+			if((stoneInPit[index + stoneValue] == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)){
+				int plus = stoneInPit[12 - (index + stoneValue)] + 1;
+				stoneInPit[13]= stoneInPit[13] + plus ;
+				stoneInPit[index + stoneValue] =0;
+				stoneInPit[ 12 - (index + stoneValue)]= 0;
 			}
 //			check if all pits for player 2 are empty, ends game
 			int sum = 0;
 			for(int j = 7; j < 13; j++) {
-				sum = sum + pits.get(j);
+				sum = sum + stoneInPit[j];
 			}
 			if(sum == 0) {
 				for(int k = 0; k < 6; k++) {
-					pits.set(6, (pits.get(6) + pits.get(k)));
+					stoneInPit[6]= (stoneInPit[6] + stoneInPit[k]);
 				}
 				endGame = true;
 			}
