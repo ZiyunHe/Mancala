@@ -10,34 +10,60 @@ public class Model {
     // Keep track of undo
     private boolean canUndo;
     private int[] undoTimes;
+    private int numberOfStones = 3;
+    private int designStyle = 1;
 
-    public Model(int stoneValue) {
+    public Model() {
         turn = true;
         pits = new ArrayList<Integer>();
-        for (int i = 0; i < 14; i++) {
-            pits.add(stoneValue);
-        }
         endGame = false;
         undoTimes = new int[] {3,3};
+        for (int i = 0; i < 13; i++) {
+            pits.add(numberOfStones);
+        }
     }
+    
+    public void setNumberOfStones(int n) {
+    		numberOfStones = n;
+    		for (int i = 0; i < 14; i++) {
+            pits.add(numberOfStones);
+        }
+    }
+    
+    public int getNumberOfStones() {
+    		return numberOfStones;
+    }
+    
+    public void setDesignStyle(int n) {
+		designStyle = n;
+    }
+
+	public Design getDesignStyle() {
+		if(designStyle == 1) {
+			return new DesignOne();
+		}
+		return new DesignTwo();
+	}
 
     public boolean getTurn() {
         return turn;
     }
+    
 
-    public void move(int index, boolean turn) {
-        int stoneValue = pits.get(index);
+    public void move(int index) {
+        //int numberOfStones = pits.get(index);
+    	System.out.println(index);
         pits.set(index, 0);
         if (turn) {
             //			Player 1 turn, index starts at 0 , escape 13
             int i = index;
-            while (i < index + stoneValue) {
+            while (i < index + numberOfStones) {
                 i++;
                 if (i > 13) {
                     i = 0;
                 }
                 if (i == 13) {
-                    stoneValue++;
+                    numberOfStones++;
                     continue;
                 }
                 pits.set(i, pits.get(i) + 1);
@@ -45,29 +71,29 @@ public class Model {
             // save pits history for undo
             saveHistory();
             //			if stone ends in your mancala, player get one more turn
-            if (index + stoneValue == 6) {
+            if (index + numberOfStones == 6) {
                 turn = true;
             } else {
                 //			turn player to player 2
                 turn = false;
             }
             //			check if the last pit was empty
-            if ((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)) {
-                int plus = pits.get(12 - (index + stoneValue)) + 1;
+            if ((pits.get(index + numberOfStones) == 1) && ((index + numberOfStones) != 6) && ((index + numberOfStones) != 13)) {
+                int plus = pits.get(12 - (index + numberOfStones)) + 1;
                 pits.set(6, pits.get(6) + plus);
-                pits.set(index + stoneValue, 0);
-                pits.set(12 - (index + stoneValue), 0);
+                pits.set(index + numberOfStones, 0);
+                pits.set(12 - (index + numberOfStones), 0);
             }
         } else {
             // 			Player 2 turn, index starts at 7, escape index 6
             int i = index;
-            while (i < index + stoneValue) {
+            while (i < (index + numberOfStones - 1)) {
                 i++;
                 if (i > 13) {
                     i = 0;
                 }
                 if (i == 7) {
-                    stoneValue++;
+                    numberOfStones++;
                     continue;
                 }
                 pits.set(i, pits.get(i) + 1);
@@ -75,18 +101,18 @@ public class Model {
             // save pits history for undo
             saveHistory();
             //			if stone ends in your mancala, player get one more turn
-            if (index + stoneValue == 13) {
+            if (index + numberOfStones == 13) {
                 turn = false;
             } else {
                 //			turn player to player 2
                 turn = true;
             }
             //			check if the last pit was empty
-            if ((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)) {
-                int plus = pits.get(12 - (index + stoneValue)) + 1;
+            if ((pits.get(index + numberOfStones) == 1) && ((index + numberOfStones) != 6) && ((index + numberOfStones) != 13)) {
+                int plus = pits.get(12 - (index + numberOfStones)) + 1;
                 pits.set(13, pits.get(13) + plus);
-                pits.set(index + stoneValue, 0);
-                pits.set(12 - (index + stoneValue), 0);
+                pits.set(index + numberOfStones, 0);
+                pits.set(12 - (index + numberOfStones), 0);
             }
             //			check if all pits for player 2 are empty, ends game
             int sum = 0;
@@ -100,7 +126,7 @@ public class Model {
                 endGame = true;
             }
         }
-        checkWin(turn);
+        //checkWin(turn);
     }
 
     public void checkWin(boolean player1){
@@ -130,7 +156,7 @@ public class Model {
             }
         }
     }
-
+    
     public void saveHistory(){
         this.pitsHistory = pits;
         this.canUndo = true;
