@@ -1,10 +1,17 @@
 import java.awt.Color;
 import java.awt.Shape;
 
+/** 
+ * Design interface for using strategy pattern
+ */
 public interface Design {
 
 	public Shape getPitShape();
+<<<<<<< HEAD
 	public Shape getStoneShape(int x, int y);
+=======
+	public Shape getStoneShape(int x,int y);
+>>>>>>> Phuc
 	public Shape getMancalaShape();
 	public Color getBackgroundColor();
 	public Color getStoneColor();

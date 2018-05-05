@@ -1,152 +1,266 @@
 import java.util.ArrayList;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+/** 
+ * Model class contain all the data and logic of the game
+ */
 public class Model {
-    private ArrayList<Integer> pits;
-    // pits history
-    private ArrayList<Integer> pitsHistory;
-    //	turn: true: player 1, false: player2
-    private boolean turn;
-    private boolean endGame;
-    // Keep track of undo
-    private boolean canUndo;
-    private int[] undoTimes;
+	
+	private int[] stoneInPit;
+	private int[] history;
+	private ArrayList<ChangeListener> listeners;
+	private int player=1;
+	private String winner;
+	private int[] playerUndoCount;
+	private boolean canUndo= false;
+	private int prevPlayer = 2;
+	
+    /**
+     * Constructor for Model
+     */
+	public Model() {
+		listeners = new ArrayList<ChangeListener> ();
+		stoneInPit = new int[14];
+		history = new int[14];
+		playerUndoCount = new int[]{-1,3,3};
+		
+	}
+	
+	
+	/** 
+	 * add ChangeListener into the listener ArrayList
+	 * @param ChangeListener c   
+     */
+	public void addChangeListener(ChangeListener c) {
+		listeners.add(c);
+	}
+    
+    /**
+     * Notify all the listener
+     */
+	public void changeListener() {
+		for (ChangeListener l : listeners) 
+			l.stateChanged(new ChangeEvent(this));
+	}
+	
+	/**
+     * Set the stone in each pits
+     * @param int stoneNum
+     */
+	public void setStoneNumber(int stoneNum) {
+		for (int i = 0; i<14;i++) {
+			if (i==6 || i==13) {
+				stoneInPit[i]= 0;
+			}else {
+			stoneInPit[i]= stoneNum;
+			}
+		}
+		for (int i = 0; i<14;i++) {
+			history[i] = stoneInPit[i];
+		}
+		changeListener();
+    }
+    
+    /**
+     * Save history of the pits
+     */
+	public void saveHistory() {
+		for (int i=0;i<14;i++) 
+			history[i] = stoneInPit[i];
+	}
+	
+    /**
+     * Getter for stone in Pits
+     * @param int pitNum
+     */
+	public int getStoneInPits(int pitNum) {
+		return stoneInPit[pitNum];
+    } 
+    
+	/**
+     * Getter for current player
+     */
+	public int getPlayer() {
+		return player;
+	}
 
-    public Model(int stoneValue) {
-        turn = true;
-        pits = new ArrayList<Integer>();
-        for (int i = 0; i < 14; i++) {
-            pits.add(stoneValue);
-        }
-        endGame = false;
-        undoTimes = new int[] {3,3};
+	/**
+     * Move function for player given the choosen pit
+     * @param int chosenPit
+     */
+	public void play(int chosenPit) {
+
+		// Set undo flag when player play only
+        canUndo = true;
+        
+        // Set up variable
+		int stoneNum = stoneInPit[chosenPit] ;
+		int stoneNumCopy = stoneInPit[chosenPit] ;
+		int chosenPitCopy = chosenPit;
+		
+		if(stoneNumCopy > 0) {
+            stoneInPit[chosenPit] = 0;
+            
+                // Logic for moving the stone
+				while (stoneNumCopy > 0) {
+					chosenPitCopy++;
+					if(player==1) {
+						if (chosenPitCopy == 13) {
+							chosenPitCopy = -1;
+							continue;
+						}
+					}
+					if(player==2) {
+						if (chosenPitCopy == 13) {
+							stoneNumCopy--;
+							stoneInPit[chosenPitCopy] = stoneInPit[chosenPitCopy]+1 ;
+							
+							chosenPitCopy = -1;
+							continue;
+							
+						}
+						if (chosenPitCopy == 6) {
+							continue;
+						}
+					}
+					stoneInPit[chosenPitCopy] = stoneInPit[chosenPitCopy]+1 ;
+					stoneNumCopy--;
+                }
+                
+                // 
+				if(chosenPitCopy==-1)
+                    chosenPitCopy=13;
+                
+                // Check if the stone goes into the empty pit
+				if (stoneInPit[chosenPitCopy] ==1 && chosenPitCopy !=6 && chosenPitCopy != 13) {
+					if (player ==1 && chosenPitCopy<6) {
+						stoneInPit[6] += stoneInPit[12-chosenPitCopy]+1;
+						stoneInPit[chosenPitCopy]=0;
+						stoneInPit[12-chosenPitCopy]=0;
+					}
+					if (player ==2 && chosenPitCopy>6) {
+						stoneInPit[13] += stoneInPit[12-chosenPitCopy]+1;
+						stoneInPit[chosenPitCopy]=0;
+						stoneInPit[12-chosenPitCopy]=0;
+					}
+                }
+
+                // Check if the last stone go into the mancala, set the corresponding player
+				if(player == 1 ) {
+					if (chosenPit+stoneNum == 19 || chosenPit+ stoneNum ==6 ) {
+						prevPlayer = 1; 
+						player =1;
+					}
+					else {
+						
+						prevPlayer = 1;
+						player =2;
+					}
+				}
+				else {
+					if (chosenPit+stoneNum == 26 || chosenPit+ stoneNum ==13 ) {
+						prevPlayer = 2; 
+						player =2;
+					}
+					else {
+						prevPlayer = 2;
+						player =1;
+					}	
+                }
+
+                // Check if the player change update the count for undo
+				if(player != prevPlayer)
+                    playerUndoCount[player]=  3;
+                    
+				// Notify the changelistener
+				changeListener();
+			}	
+	}
+	
+	/**
+     * Check if the game is finish
+     * @return isFinish
+     */
+	public boolean isFinish() {
+		int sum1=0;
+        int sum2=0;
+
+		for(int i=0; i<6; i++ ) 
+			sum1+= stoneInPit[i];
+		for(int i=7; i<13; i++ ) 
+            sum2+= stoneInPit[i];
+        
+        // Check winner condition and set the winner
+		if (sum1==0) { 
+			for(int i=0;i<3;i++)
+				playerUndoCount[i]=0;
+			for(int i=7; i<13; i++ ) 
+				stoneInPit[i]=0;
+			stoneInPit[13]+=sum2;
+			
+			if(stoneInPit[13]>stoneInPit[6])
+				winner = "the Winer is player B";
+			if(stoneInPit[13]==stoneInPit[6])
+				winner = "the game is tied";
+			if(stoneInPit[13]<stoneInPit[6]) 	
+				winner = "the Winer is player A";
+			changeListener();
+			return true;
+		}	
+		
+		if (sum2==0) { 
+			for(int i=0;i<3;i++)
+				playerUndoCount[i]=0;
+			for(int i=0; i<6; i++ ) 
+				stoneInPit[i]=0;
+			stoneInPit[6]+=sum1;
+			
+			if(stoneInPit[13]>stoneInPit[6])
+				winner = "the Winer is player B";
+			if(stoneInPit[13]==stoneInPit[6])
+				winner = "the game is tied";
+			if(stoneInPit[13]<stoneInPit[6]) 
+				winner = "the Winer is player A";
+			
+			changeListener();
+			return true;
+		}	
+		return false;
     }
 
-    public boolean getTurn() {
-        return turn;
+	/**
+     * Getter for the winner
+     * @return winner
+     */
+	public String getWiner() {
+		return winner;
     }
-
-    public void move(int index, boolean turn) {
-        int stoneValue = pits.get(index);
-        pits.set(index, 0);
-        if (turn) {
-            //			Player 1 turn, index starts at 0 , escape 13
-            int i = index;
-            while (i < index + stoneValue) {
-                i++;
-                if (i > 13) {
-                    i = 0;
-                }
-                if (i == 13) {
-                    stoneValue++;
-                    continue;
-                }
-                pits.set(i, pits.get(i) + 1);
-            }
-            // save pits history for undo
-            saveHistory();
-            //			if stone ends in your mancala, player get one more turn
-            if (index + stoneValue == 6) {
-                turn = true;
-            } else {
-                //			turn player to player 2
-                turn = false;
-            }
-            //			check if the last pit was empty
-            if ((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)) {
-                int plus = pits.get(12 - (index + stoneValue)) + 1;
-                pits.set(6, pits.get(6) + plus);
-                pits.set(index + stoneValue, 0);
-                pits.set(12 - (index + stoneValue), 0);
-            }
-        } else {
-            // 			Player 2 turn, index starts at 7, escape index 6
-            int i = index;
-            while (i < index + stoneValue) {
-                i++;
-                if (i > 13) {
-                    i = 0;
-                }
-                if (i == 7) {
-                    stoneValue++;
-                    continue;
-                }
-                pits.set(i, pits.get(i) + 1);
-            }
-            // save pits history for undo
-            saveHistory();
-            //			if stone ends in your mancala, player get one more turn
-            if (index + stoneValue == 13) {
-                turn = false;
-            } else {
-                //			turn player to player 2
-                turn = true;
-            }
-            //			check if the last pit was empty
-            if ((pits.get(index + stoneValue) == 1) && ((index + stoneValue) != 6) && ((index + stoneValue) != 13)) {
-                int plus = pits.get(12 - (index + stoneValue)) + 1;
-                pits.set(13, pits.get(13) + plus);
-                pits.set(index + stoneValue, 0);
-                pits.set(12 - (index + stoneValue), 0);
-            }
-            //			check if all pits for player 2 are empty, ends game
-            int sum = 0;
-            for (int j = 7; j < 13; j++) {
-                sum = sum + pits.get(j);
-            }
-            if (sum == 0) {
-                for (int k = 0; k < 6; k++) {
-                    pits.set(6, (pits.get(6) + pits.get(k)));
-                }
-                endGame = true;
-            }
-        }
-        checkWin(turn);
+    
+    /**
+     * Undo function for undo button
+     */
+	public void undo() {
+		
+		if(canUndo && playerUndoCount[prevPlayer] > 0) {
+			
+			canUndo= false;
+			playerUndoCount[prevPlayer] -=1;
+			player = prevPlayer;
+			
+			for (int i =0; i<14; i++) {
+				stoneInPit[i]=history[i];
+			}
+			changeListener();
+		}
     }
-
-    public void checkWin(boolean player1){
-        if(player1){
-            //			check if all pits for player 1 are empty, ends game
-            int sum = 0;
-            for (int j = 0; j < 6; j++) {
-                sum = sum + pits.get(j);
-            }
-            if (sum == 0) {
-                for (int k = 7; k < 13; k++) {
-                    pits.set(13, (pits.get(13) + pits.get(k)));
-                }
-                endGame = true;
-            }
-        } else {
-             //			check if all pits for player 2 are empty, ends game
-            int sum = 0;
-            for (int j = 7; j < 13; j++) {
-                sum = sum + pits.get(j);
-            }
-            if (sum == 0) {
-                for (int k = 0; k < 6; k++) {
-                    pits.set(6, (pits.get(6) + pits.get(k)));
-                }
-                endGame = true;
-            }
-        }
-    }
-
-    public void saveHistory(){
-        this.pitsHistory = pits;
-        this.canUndo = true;
-    }
-    public void undo(boolean player){
-        this.canUndo = false;
-        this.pits = this.pitsHistory;
-        if(player){
-            undoTimes[0]--;
-        } else{
-            undoTimes[1]--;
-        }
-    }
-    public int getUndo(boolean player){
-        if(player){
-            return undoTimes[0];
-        } else return undoTimes[1];
-    }
+    
+    /**
+     * Getter undo count
+     * @return undo count
+     */
+	public int getUndoCount() {
+		return playerUndoCount[player];
+	}
+	
 }
